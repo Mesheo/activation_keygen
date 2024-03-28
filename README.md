@@ -1,5 +1,6 @@
 # Diagrama do fluxo
-![image]()
+![image](https://github.com/Mesheo/activation_keygen/assets/71408872/0bf39e92-b748-45bf-b41d-92c2286e7da5)
+
 
 # Resumo das funções
 /client_application /app.py 
