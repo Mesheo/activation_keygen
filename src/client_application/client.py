@@ -2,22 +2,29 @@
 import hashlib
 import platform
 from pathlib import Path
-from time import sleep
+from time import sleep  
+from dataclasses import dataclass
 
+@dataclass(frozen=True)
+class SystemInfo:
+    system: str
+    node: str
+    release: str
+    version: str
+    machine: str
+    processor: str
 
-# TODO @mesheo: implementar o dataclass para guardar as informacoes do machine_info
-# para seguranca e impedir manipulacao do dado depois de retornar
-def collect_system_info() -> dict[str, str]:
+def collect_system_info() -> SystemInfo:
     system_info = platform.uname()
 
-    return {
-        "system": system_info.system,
-        "node": system_info.node,
-        "release": system_info.release,
-        "version": system_info.version,
-        "machine": system_info.machine,
-        "processor": system_info.processor,
-    }
+    return SystemInfo(
+        system=system_info.system,
+        node=system_info.node,
+        release=system_info.release,
+        version=system_info.version,
+        machine=system_info.machine,
+        processor=system_info.processor
+    )
 
 def persist_activation_key(activation_key: str) -> None:
     file_path = "activation_key.txt"
@@ -39,7 +46,12 @@ def verify_activation_key(activation_key, hash_system_info):
 def encode_machine_info():
     machine_info = collect_system_info()
 
-    machine_info_str = "\n".join([f"{key}: {value}" for key, value in machine_info.items()])
+    formatted_fields = [
+        f"{field.name}: {getattr(machine_info, field.name)}"
+        for field in machine_info.__dataclass_fields__.values()
+    ]
+    machine_info_str = "\n".join(formatted_fields)
+
     hash_object = hashlib.sha256(machine_info_str.encode())
     hash_hex = hash_object.hexdigest()
 
@@ -49,7 +61,15 @@ def encode_machine_info():
 if __name__ == "__main__":
     activated = False
 
-    # TODO @mesheo: checar se ja esta ativado antes de perguntar ao usuario
+    try:
+        with open("activation_key.txt", "r") as file:
+            activation_key = (file.read())
+            if verify_activation_key(activation_key, encode_machine_info()):
+                print("PROGRAMA JA INCIOU ATIVADO!")
+                activated = True
+    except FileNotFoundError:   
+        activated = False
+
     while not activated:
         option = int(input("\nChoose an option: \n1 - Activate Program\n2- Generate Machine Fingerprint\n"))
         activate_program = 1
