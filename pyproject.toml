@@ -2,9 +2,10 @@
 name = "activation_keygen"
 version = "1.0.0"
 dependencies = [
-    "ruff",
-    "mypy",
-    "nwatch_activation"
+    "ruff == 0.4.1",
+    "mypy == 1.10.0",
+    "py-machineid == 0.5.1",
+    "cryptography == 42.0.5"
 ]
 
 [project.optional-dependencies]
